@@ -1,0 +1,45 @@
+{
+  "name": "ramdefender",
+  "version": "1.0.0",
+  "description": "A google chrom extension game where you fight againts ram eaters.",
+  "main": "index.js",
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint ./src --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/standahorvath/RamDefender.git"
+  },
+  "keywords": [
+    "js",
+    "chrome",
+    "game",
+    "defender",
+    "extension"
+  ],
+  "author": "Stanislav Horváth",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/standahorvath/RamDefender/issues"
+  },
+  "homepage": "https://github.com/standahorvath/RamDefender#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.3",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.4"
+  },
+  "dependencies": {
+    "pixi.js": "^8.1.0",
+    "@pixi/sound": "^5.2.0",
+    "gsap": "^3.11.4",
+    "pixi-spine": "^4.0.4"
+  }
+}
