@@ -27,10 +27,6 @@ export default class AssetLoader {
   async loadAssetsGroup(group: string) {
     const sceneAssets = this.manifest.filter((asset) => asset.group === group);
 
-    for (const asset of sceneAssets) {
-      Assets.add(asset.name, asset.url);
-    }
-
     const resources = await Assets.load(sceneAssets.map((asset) => asset.name));
 
     console.log('✅ Loaded assets group', group, resources);

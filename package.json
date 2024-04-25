@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/standahorvath/RamDefender#readme",
   "devDependencies": {
+    "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",
     "eslint": "^8.32.0",
@@ -37,9 +38,10 @@
     "vite": "^4.0.4"
   },
   "dependencies": {
-    "pixi.js": "^8.1.0",
     "@pixi/sound": "^5.2.0",
+    "eventemitter3": "^5.0.1",
     "gsap": "^3.11.4",
-    "pixi-spine": "^4.0.4"
+    "pixi-spine": "^4.0.4",
+    "pixi.js": "^8.1.0"
   }
 }
