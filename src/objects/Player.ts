@@ -1,13 +1,16 @@
 import { Container, Graphics, Assets, Texture, Sprite } from 'pixi.js';
 import { centerObjects } from '../utils/general';
 import Keyboard from '../Keyboard';
+import Mouse from '../Mouse';
 
 export class Player extends Container {
 
 
   private graphics = new Graphics()
   private playerSprite = null as Sprite | null;
+  private cannonSprite = null as Sprite | null;
   private keyboard = Keyboard.getInstance();
+  private mouse = Mouse.getInstance();
 
   private state = {
     moveX: 0,
@@ -22,10 +25,22 @@ export class Player extends Container {
       else if (buttonState === 'released') this.onActionRelease(action);
     });
 
+    this.mouse.on('MOVE', ({ action, x, y }) => {
+      this.onMouseMove(x, y)
+    });
+
     Promise.resolve(Assets.load('/assets/images/player.png')).then((texture:Texture) => {
       this.playerSprite = new Sprite(texture)
       centerObjects(this.playerSprite)
       this.addChild(this.playerSprite)	
+
+      Promise.resolve(Assets.load('/assets/images/cannon.png')).then((texture:Texture) => {
+        this.cannonSprite = new Sprite(texture)
+        if(!this.playerSprite) return
+        this.playerSprite.addChild(this.cannonSprite)	
+        this.cannonSprite.position.set(0, 0)
+        this.cannonSprite.anchor.set(0.5, 0.5)
+      })
     })
 
 
@@ -74,10 +89,21 @@ export class Player extends Container {
     }
   }
 
+  private onMouseMove(x: number, y: number){
+    const mouseX = x
+    const mouseY = y
+    const playerX = this.playerSprite?.x || 0
+    const playerY = this.playerSprite?.y || 0
+    const angle = Math.atan2(mouseY - playerY, mouseX - playerX)
+    if(!this.cannonSprite) return
+    this.cannonSprite.rotation = angle + Math.PI / 2
+  }
+
   private move(delta: number){
     if(!this.playerSprite) return
     this.playerSprite.x += this.state.moveX * delta * window.playerSpeed
     this.playerSprite.y += this.state.moveY * delta * window.playerSpeed
+    this.onMouseMove(Mouse.x, Mouse.y)
   }
 
   public update(delta: number) {

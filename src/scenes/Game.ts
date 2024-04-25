@@ -3,6 +3,7 @@ import Scene from '../Scene';
 import { Stats } from '../objects/Stats';
 import { Player } from '../objects/Player';
 import { centerObjects } from '../utils/general';
+import { Shoot } from '../objects/Shoot';
 
 export default class Game extends Scene {
   name = 'Game';
@@ -10,6 +11,7 @@ export default class Game extends Scene {
 
   private stats = new Stats();
   private player = new Player();
+  private shoots = [] as Shoot[];
 
   async load() {
 
@@ -31,10 +33,12 @@ export default class Game extends Scene {
   }
   async onResize(width: number, height: number) {
     this.stats.resize(width);
+    this.shoots.forEach((shoot) => shoot.resize(width));
     return
   }
   async update(delta: number) {
     this.player.update(delta)
+    this.shoots.forEach((shoot) => shoot.update(delta));
     if(!this.text) return
     //const x = Math.cos(delta / 1000) * Math.random() * 1000
     //const y = Math.cos(delta / 1000) * Math.random() * 1000
