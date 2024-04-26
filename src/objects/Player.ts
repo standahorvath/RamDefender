@@ -31,7 +31,7 @@ export class Player extends Container {
 
     Promise.resolve(Assets.load('/assets/images/player.png')).then((texture:Texture) => {
       this.playerSprite = new Sprite(texture)
-      centerObjects(this.playerSprite)
+      this.playerSprite.anchor.set(0.5, 0.5)
       this.addChild(this.playerSprite)	
 
       Promise.resolve(Assets.load('/assets/images/cannon.png')).then((texture:Texture) => {
@@ -92,8 +92,8 @@ export class Player extends Container {
   private onMouseMove(x: number, y: number){
     const mouseX = x
     const mouseY = y
-    const playerX = this.playerSprite?.x || 0
-    const playerY = this.playerSprite?.y || 0
+    const playerX = this.x || 0
+    const playerY = this.y || 0
     const angle = Math.atan2(mouseY - playerY, mouseX - playerX)
     if(!this.cannonSprite) return
     this.cannonSprite.rotation = angle + Math.PI / 2
@@ -101,8 +101,8 @@ export class Player extends Container {
 
   private move(delta: number){
     if(!this.playerSprite) return
-    this.playerSprite.x += this.state.moveX * delta * window.playerSpeed
-    this.playerSprite.y += this.state.moveY * delta * window.playerSpeed
+    this.x += this.state.moveX * delta * window.playerSpeed
+    this.y += this.state.moveY * delta * window.playerSpeed
     this.onMouseMove(Mouse.x, Mouse.y)
   }
 
@@ -116,6 +116,11 @@ export class Player extends Container {
   
   render(width: number) {
     this.graphics.clear();
+  }
+
+  public getCannonRotation(){
+    if(!this.cannonSprite) return 0
+    return this.cannonSprite.rotation
   }
 
 }

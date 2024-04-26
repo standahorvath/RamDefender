@@ -27,3 +27,7 @@ export async function after(
   await wait(seconds);
   return callback();
 }
+
+export function isIntersecting(a: DisplayObject, b: DisplayObject) {
+  return a.getBounds().contains(b.getBounds());
+}
