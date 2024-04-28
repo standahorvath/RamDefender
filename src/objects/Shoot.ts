@@ -1,13 +1,15 @@
 
-import { Container, Graphics, Assets, Texture, Sprite } from 'pixi.js';
+import { Container, Assets, Texture, Sprite } from 'pixi.js';
 export class Shoot extends Container {
 
   public shootSprite = null as Sprite | null;
-  constructor(x: number, y: number, angle: number) {
+  private damage = 15;
+  constructor(x: number, y: number, angle: number, damage = 15) {
     super();
     this.x = x + Math.cos(angle - Math.PI / 2) * 40
     this.y = y + Math.sin(angle - Math.PI / 2) * 40
     this.angle = angle
+    this.damage = damage
     Promise.resolve(Assets.load('/assets/images/shoot.png')).then((texture:Texture) => {
       this.shootSprite = new Sprite(texture)
       this.addChild(this.shootSprite)
@@ -21,6 +23,11 @@ export class Shoot extends Container {
     const yDiff = Math.sin(this.angle - Math.PI / 2) * delta * window.shootSpeed
     this.x += xDiff
     this.y += yDiff
+  }
+  public getDamage() {
+    const fromDamage = this.damage * 0.5
+    const toDamage = this.damage * 1.2
+    return Math.random() * (toDamage - fromDamage) + fromDamage
   }
 
   public resize(width: number) {

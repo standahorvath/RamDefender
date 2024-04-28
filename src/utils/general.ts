@@ -29,5 +29,12 @@ export async function after(
 }
 
 export function isIntersecting(a: DisplayObject, b: DisplayObject) {
-  return a.getBounds().contains(b.getBounds());
+  const boundsA = a.getBounds();
+  const boundsB = b.getBounds();
+  return (
+    boundsA.x + boundsA.width > boundsB.x &&
+    boundsA.x < boundsB.x + boundsB.width &&
+    boundsA.y + boundsA.height > boundsB.y &&
+    boundsA.y < boundsB.y + boundsB.height
+  );
 }

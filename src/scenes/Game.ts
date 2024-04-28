@@ -9,28 +9,18 @@ import Mouse from '../Mouse';
 import {isIntersecting} from '../utils/general'
 export default class Game extends Scene {
   name = 'Game';
-  text = null as Text | null;
 
   private stats = new Stats();
   private player = new Player();
-  private shoots = [] as Shoot[];
-  private enemies = [] as Enemy[];
+  public enemies = [] as Enemy[];
   
   private mouse = Mouse.getInstance();
 
   async load() {
 
-    this.text = new Text('Game', {
-      fontFamily: 'Verdana',
-      fontSize: 50,
-      fill: 'white',
-    });
+    centerObjects(this.player);
 
-    this.text.resolution = 2;
-
-    centerObjects(this.text, this.player);
-
-    this.addChild(this.text, this.stats, this.player);
+    this.addChild(this.stats, this.player);
 
     this.mouse.on('CLICK', ({ buttonState, button }) => {
       if (buttonState === 'pressed') {
@@ -52,37 +42,72 @@ export default class Game extends Scene {
   }
   async onResize(width: number, height: number) {
     this.stats.resize(width);
-    this.shoots.forEach((shoot) => shoot.resize(width));
+
+    const shoots = this.player.getWeapon()?.getShoots()
+    if(shoots){
+      shoots.forEach((shoot:Shoot) => shoot.resize(width));
+    }
+    
     this.enemies.forEach((enemy) => enemy.resize(width));
     return
   }
   async update(delta: number) {
     this.player.update(delta)
-    this.shoots.forEach((shoot) => shoot.update(delta));
-    this.enemies.forEach((enemy) => enemy.update(delta, this.player));
-    if(!this.text) return
-    //const x = Math.cos(delta / 1000) * Math.random() * 1000
-    //const y = Math.cos(delta / 1000) * Math.random() * 1000
-    //this.text?.position.set(x, y)
 
-    this.shoots.forEach((shoot:Shoot) => {
-      this.enemies.forEach((enemy:Enemy) => {
-        if(isIntersecting(shoot.shootSprite, enemy.background)){
-          this.removeChild(shoot)
-          this.removeChild(enemy)
-          this.shoots = this.shoots.filter((s) => s !== shoot)
-          this.enemies = this.enemies.filter((e) => e !== enemy)
-        }
+    this.enemies.forEach((enemy) => enemy.update(delta, this.player));
+
+    const shoots = this.player.getWeapon()?.getShoots()
+    if(shoots){
+      shoots.forEach((shoot:Shoot) => shoot.update(delta));
+
+      shoots.forEach((shoot:Shoot) => {
+        this.enemies.forEach((enemy:Enemy) => {
+          if(shoot.shootSprite && enemy.background && isIntersecting(shoot.shootSprite, enemy.background)){
+            this.onEnemyShoot(shoot, enemy)
+          }
+        })
       })
-    })
+
+      shoots.forEach((shoot:Shoot) => {
+        if(shoot.position.x > window.innerWidth || shoot.position.x < 0 || shoot.position.y > window.innerHeight || shoot.position.y < 0){
+          this.removeChild(shoot)
+          this.player.getWeapon()?.setShoots(shoots.filter((s) => s !== shoot))
+        }
+      });
+      
+    }
+
+    if(this.enemies.length < 10){
+      const enemy = new Enemy(Math.random() * 500, Math.random() * 500, 0)
+      this.enemies.push(enemy)
+      this.addChild(enemy)
+    }
+
     return
+  }
+
+  public onEnemyShoot(shoot: Shoot, enemy: Enemy){
+    this.removeChild(shoot)
+    
+    const shoots = this.player.getWeapon()?.getShoots()
+    if(shoots){
+      this.player.getWeapon()?.setShoots(shoots.filter((s) => s !== shoot))
+    }
+
+    // Hitting enemy with a shoot
+    if(enemy.hit(shoot.getDamage())){
+      this.removeChild(enemy)
+      this.enemies = this.enemies.filter((e) => e !== enemy)
+      // Add score of that enemy
+      this.stats.addScore(enemy.getScore())
+    }
   }
 
   onMouseDown(button: number) {
     if(button === 0){
-      const shoot = new Shoot(this.player.position.x, this.player.position.y, this.player.getCannonRotation())
-      this.shoots.push(shoot)
-      this.addChild(shoot)
+      const weapon = this.player.getWeapon()
+      if(!weapon) return
+      weapon.shoot(this.player, this)
     }
   }
   onMouseUp(button: number) {

@@ -22,6 +22,8 @@ export default class SceneManager {
         resizeTo: window,
         powerPreference: 'high-performance',
         backgroundColor: 0x01134e,
+        resolution: window.devicePixelRatio,
+        antialias: true,
       }
     )).then(() => {
     // @ts-expect-error Set PIXI app to global window object for the PIXI Inspector

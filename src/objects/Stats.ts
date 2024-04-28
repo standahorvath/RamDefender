@@ -61,6 +61,10 @@ export class Stats extends Container {
     this.state.score = score
     this.render(window.innerWidth)
   }
+  addScore(score: number) {
+    this.state.score += score
+    this.render(window.innerWidth)
+  }
   getScore() {
     return this.state.score
   }

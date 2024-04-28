@@ -2,15 +2,20 @@ import { Container, Graphics, Assets, Texture, Sprite } from 'pixi.js';
 import { centerObjects } from '../utils/general';
 import Keyboard from '../Keyboard';
 import Mouse from '../Mouse';
+import { Weapon } from './Weapon';
+import { Pistol } from './Weapons/Pistol';
+import { Shootgun } from './Weapons/Shootgun';
+import { Machinegun } from './Weapons/Machinegun';
+import { Lasergun } from './Weapons/Lasergun';
 
 export class Player extends Container {
 
 
   private graphics = new Graphics()
   private playerSprite = null as Sprite | null;
-  private cannonSprite = null as Sprite | null;
   private keyboard = Keyboard.getInstance();
   private mouse = Mouse.getInstance();
+  private weapon = null as Weapon | null;
 
   private state = {
     moveX: 0,
@@ -32,15 +37,10 @@ export class Player extends Container {
     Promise.resolve(Assets.load('/assets/images/player.png')).then((texture:Texture) => {
       this.playerSprite = new Sprite(texture)
       this.playerSprite.anchor.set(0.5, 0.5)
-      this.addChild(this.playerSprite)	
+      this.addChild(this.playerSprite)
 
-      Promise.resolve(Assets.load('/assets/images/cannon.png')).then((texture:Texture) => {
-        this.cannonSprite = new Sprite(texture)
-        if(!this.playerSprite) return
-        this.playerSprite.addChild(this.cannonSprite)	
-        this.cannonSprite.position.set(0, 0)
-        this.cannonSprite.anchor.set(0.5, 0.5)
-      })
+      this.weapon = new Lasergun()
+      this.addChild(this.weapon)
     })
 
 
@@ -61,6 +61,26 @@ export class Player extends Container {
         break
       case 'RIGHT':
         this.state.moveX = 1
+        break
+      case 'KeyE':
+        if(!this.weapon) return
+        this.removeChild(this.weapon)
+        if(this.weapon?.getWeaponName() === 'Pistol'){
+          this.weapon = new Shootgun()
+          this.addChild(this.weapon)
+        }
+        else if(this.weapon?.getWeaponName() === 'Shootgun'){
+          this.weapon = new Machinegun()
+          this.addChild(this.weapon)
+        }
+        else if(this.weapon?.getWeaponName() === 'Machinegun'){
+          this.weapon = new Lasergun()
+          this.addChild(this.weapon)
+        }
+        else if(this.weapon?.getWeaponName() === 'Lasergun'){
+          this.weapon = new Pistol()
+          this.addChild(this.weapon)
+        }
         break
     }
   }
@@ -95,8 +115,8 @@ export class Player extends Container {
     const playerX = this.x || 0
     const playerY = this.y || 0
     const angle = Math.atan2(mouseY - playerY, mouseX - playerX)
-    if(!this.cannonSprite) return
-    this.cannonSprite.rotation = angle + Math.PI / 2
+    if(!this.weapon) return
+    this.weapon.rotation = angle + Math.PI / 2
   }
 
   private move(delta: number){
@@ -108,6 +128,9 @@ export class Player extends Container {
 
   public update(delta: number) {
     this.move(delta)
+    if(this.weapon){
+      this.weapon.update(delta)
+    }
   }
 
   resize(width: number) {
@@ -118,9 +141,8 @@ export class Player extends Container {
     this.graphics.clear();
   }
 
-  public getCannonRotation(){
-    if(!this.cannonSprite) return 0
-    return this.cannonSprite.rotation
+  public getWeapon() {
+    return this.weapon
   }
 
 }
