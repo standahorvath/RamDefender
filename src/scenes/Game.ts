@@ -1,4 +1,4 @@
-import { Text } from 'pixi.js';
+import { Graphics, Text } from 'pixi.js';
 import Scene from '../Scene';
 import { Stats } from '../objects/Stats';
 import { Player } from '../objects/Player';
@@ -13,8 +13,11 @@ export default class Game extends Scene {
   private stats = new Stats();
   private player = new Player();
   public enemies = [] as Enemy[];
-  
   private mouse = Mouse.getInstance();
+  private gameText = null as Text | null;
+  private gameSubtext = null as Text | null;
+
+  private gameIsPaused = false;
 
   async load() {
 
@@ -31,7 +34,7 @@ export default class Game extends Scene {
     });
 
     for(let i = 0; i < 10; i++){
-      const enemy = new Enemy(i * Math.random() * 500, i * Math.random() * 500, 0)
+      const enemy = new Enemy(i/10 * Math.random() * window.innerWidth, i/10 * Math.random() * window.innerHeight, 0)
       this.enemies.push(enemy)
       this.addChild(enemy)
     }
@@ -54,7 +57,7 @@ export default class Game extends Scene {
   async update(delta: number) {
     this.player.update(delta)
 
-    this.enemies.forEach((enemy) => enemy.update(delta, this.player));
+    this.enemies.forEach((enemy) => enemy.update(delta, this.player, this.stats.getScore()));
 
     const shoots = this.player.getWeapon()?.getShoots()
     if(shoots){
@@ -77,15 +80,68 @@ export default class Game extends Scene {
       
     }
 
-    if(this.enemies.length < 10){
-      const enemy = new Enemy(Math.random() * 500, Math.random() * 500, 0)
+    if(this.enemies.length < 10 && !this.gameIsPaused){
+      const radiusFromPlayer = window.innerWidth / 2
+      const angle = Math.random() * Math.PI * 2
+      const x = this.player.x + Math.cos(angle) * radiusFromPlayer
+      const y = this.player.y + Math.sin(angle) * radiusFromPlayer
+      const enemy = new Enemy(x, y, 0)
       this.enemies.push(enemy)
       this.addChild(enemy)
     }
 
+    this.checkGameEnd();
+
     return
   }
-
+  private checkGameEnd(){
+    if(this.player.getHealth() <= 0 && this.stats.getLives() > 0){
+      this.stats.setLives(this.stats.getLives() - 1)
+      this.player.setHealth(100)
+      this.enemies.forEach((enemy) => {
+        this.removeChild(enemy)
+      });
+      this.enemies = []
+      this.gameIsPaused = true
+      this.gameText = new Text('You loose one of your ram.', {
+        fontFamily: 'Verdana',
+        fontSize: 50,
+        fill: 'white',
+      });
+      this.gameSubtext = new Text('Press fire key to continue', {
+        fontFamily: 'Verdana',
+        fontSize: 20,
+        fill: 'white',
+      });
+      this.gameText.resolution = 2;
+      centerObjects(this.gameText);
+      centerObjects(this.gameSubtext);
+      this.gameText.y = window.innerHeight / 2 - 50
+      this.addChild(this.gameText);
+      this.addChild(this.gameSubtext);
+    } else {
+      if(this.stats.getLives() <= 0){
+        this.gameIsPaused = true
+        this.gameText = new Text('Game Over', {
+          fontFamily: 'Verdana',
+          fontSize: 50,
+          fill: 'white',
+        });
+        this.gameSubtext = new Text('Press fire key to restart', {
+          fontFamily: 'Verdana',
+          fontSize: 20,
+          fill: 'white',
+        });
+        this.gameText.resolution = 2;
+        centerObjects(this.gameText);
+        centerObjects(this.gameSubtext);
+        this.gameText.y = window.innerHeight / 2 - 50
+        this.addChild(this.gameText);
+        this.addChild(this.gameSubtext);
+      }
+    
+    }
+  }
   public onEnemyShoot(shoot: Shoot, enemy: Enemy){
     this.removeChild(shoot)
     
@@ -108,6 +164,28 @@ export default class Game extends Scene {
       const weapon = this.player.getWeapon()
       if(!weapon) return
       weapon.shoot(this.player, this)
+
+      if(this.gameIsPaused && this.stats.getLives() > 0){
+        this.gameIsPaused = false
+        if(this.gameText && this.gameSubtext) {
+          this.removeChild(this.gameText)
+          this.removeChild(this.gameSubtext)
+        }
+      } else if(this.gameIsPaused && this.stats.getLives() <= 0){
+        this.stats.setLives(3)
+        this.stats.setScore(0)
+        this.player.setHealth(100)
+        this.enemies.forEach((enemy) => {
+          this.removeChild(enemy)
+        });
+        this.enemies = []
+        this.gameIsPaused = false
+        if(this.gameText && this.gameSubtext) {
+          this.removeChild(this.gameText)
+          this.removeChild(this.gameSubtext)
+        }
+      }
+
     }
   }
   onMouseUp(button: number) {

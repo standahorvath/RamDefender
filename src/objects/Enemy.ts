@@ -1,6 +1,7 @@
 
 import { Container, Graphics, Assets, Texture, Sprite } from 'pixi.js';
 import { Player } from './Player';
+import {isIntersecting} from '../utils/general'
 export class Enemy extends Container {
 
   public background = null as Sprite | null;
@@ -10,6 +11,8 @@ export class Enemy extends Container {
   private health = 30;
   private maxHealth = 30;
   private isHited = false;
+  private damage = 26;
+
   constructor(x: number, y: number, angle: number, score = 30, health = 30) {
     super();
     this.x = x
@@ -42,13 +45,13 @@ export class Enemy extends Container {
 
 
   }
-  public update(delta: number, player: Player) {
+  public update(delta: number, player: Player, score: number) {
     
       
     const dx = player.x - this.x;
     const dy = player.y - this.y;
     let angle = 0;
-    let speed = window.enemySpeed;
+    let speed = window.enemySpeed * (1 + (score / 4500));
     if(!this.isHited){
       // Go closer to player
       angle = Math.atan2(dy, dx);
@@ -61,6 +64,10 @@ export class Enemy extends Container {
 
     this.x += Math.cos(angle) * speed * delta;
     this.y += Math.sin(angle) * speed * delta;
+
+    if(isIntersecting(this.background, player.playerSprite)) {
+      player.hit(this.damage + Math.random() * 10, this)
+    }
      
     this.render(window.innerWidth)
   }

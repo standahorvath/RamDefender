@@ -1,5 +1,4 @@
 import { Container, Graphics, Assets, Texture, Sprite } from 'pixi.js';
-import { centerObjects } from '../utils/general';
 import Keyboard from '../Keyboard';
 import Mouse from '../Mouse';
 import { Weapon } from './Weapon';
@@ -7,12 +6,14 @@ import { Pistol } from './Weapons/Pistol';
 import { Shootgun } from './Weapons/Shootgun';
 import { Machinegun } from './Weapons/Machinegun';
 import { Lasergun } from './Weapons/Lasergun';
+import { Enemy } from './Enemy';
 
 export class Player extends Container {
 
 
   private graphics = new Graphics()
-  private playerSprite = null as Sprite | null;
+  private healthBar = null as Graphics | null;
+  public playerSprite = null as Sprite | null;
   private keyboard = Keyboard.getInstance();
   private mouse = Mouse.getInstance();
   private weapon = null as Weapon | null;
@@ -20,6 +21,7 @@ export class Player extends Container {
   private state = {
     moveX: 0,
     moveY: 0,
+    health: 100
   }
 
   constructor() {
@@ -46,6 +48,13 @@ export class Player extends Container {
 
     this.render(window.innerWidth)
     this.addChild(this.graphics)
+
+    
+
+    this.healthBar = new Graphics()
+    this.healthBar.circle(0, 0, 40)
+      .fill('white')
+    this.addChild(this.healthBar)
   }
 
   private onActionPress(action: keyof typeof Keyboard.actions) {
@@ -139,10 +148,43 @@ export class Player extends Container {
   
   render(width: number) {
     this.graphics.clear();
+
+    const health = this.state.health
+    const healthPercent = 1 - (health / 100)
+    
+    this.healthBar?.clear()
+      .circle(0, 0, 40)
+      .fill('white')
+      .arc(0, 0, 41, 0, Math.PI * 2 * healthPercent)
+      .fill('red')
+      .circle(0, 0, 1)
+      .cut()
+    if(!this.healthBar) return
+    this.addChild(this.healthBar)
+    if(!this.weapon) return
+    this.addChild(this.weapon)
+    if(!this.playerSprite) return
+    this.addChild(this.playerSprite)
+
   }
 
   public getWeapon() {
     return this.weapon
+  }
+  public getHealth() {
+    return this.state.health
+  }
+  public setHealth(health: number) {
+    this.state.health = health
+    this.render(window.innerWidth)
+  }
+
+  public hit(damage:number, enemy: Enemy){
+    this.state.health -= damage
+    const angle = Math.atan2(this.y - enemy.y, this.x - enemy.x)
+    this.x += Math.cos(angle) * 50
+    this.y += Math.sin(angle) * 50
+    this.render(window.innerWidth)
   }
 
 }
