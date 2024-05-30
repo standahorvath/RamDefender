@@ -8,6 +8,7 @@ export class Shootgun extends Weapon {
     this.weaponName = 'Shootgun';
   }
   public shoot(player: Player, game: Container) {
+    this.ammo -= 5;
     for(let i = 0; i < 10; i++){
       const shoot = new Shoot(player.position.x, player.position.y, this.rotation + (i * (Math.PI / 180) * 2) + (Math.PI * -0.05), this.damage)
       this.shoots.push(shoot)

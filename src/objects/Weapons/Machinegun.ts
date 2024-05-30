@@ -8,6 +8,7 @@ export class Machinegun extends Weapon {
     this.weaponName = 'Machinegun';
   }
   public shoot(player: Player, game: Container) {
+    this.ammo -= 4;
     for(let i = 0; i < 10; i++){
       setTimeout(() => {
         this.machineGunShoot(player, game)

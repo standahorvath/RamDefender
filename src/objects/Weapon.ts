@@ -6,6 +6,7 @@ export class Weapon extends Container {
   protected damage = 10;
   protected weaponName = 'Generetic';
   protected shoots = [] as Shoot[]
+  protected ammo = 100;
   constructor(damage = 10, spritePath: string) {
     super();
     this.damage = damage;
@@ -36,5 +37,11 @@ export class Weapon extends Container {
   }
   public update(delta: number) {
     delta
+  }
+  public heal(){
+    this.ammo = 100
+  }
+  public getAmmo(){
+    return this.ammo
   }
 }
