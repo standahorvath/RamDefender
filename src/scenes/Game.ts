@@ -18,8 +18,8 @@ export default class Game extends Scene {
 
   // Initialize private and public properties
   private stats = new Stats();
-  private inventory = new Inventory();
   private player = new Player();
+  private inventory = new Inventory(this.player);
   public enemies = [] as Enemy[];
   public drops = [] as Drop[];
   private mouse = Mouse.getInstance();
@@ -118,7 +118,12 @@ export default class Game extends Scene {
       const angle = Math.random() * Math.PI * 2;
       const x = this.player.x + Math.cos(angle) * radiusFromPlayer;
       const y = this.player.y + Math.sin(angle) * radiusFromPlayer;
-      const enemy = new Enemy(x, y, 0);
+      let enemy = new Enemy(x, y, 0);
+      if(Math.random() < 0.2){
+        enemy = new Enemy(x, y, 0, 100, 300, 50);
+      }
+      
+
       this.enemies.push(enemy);
       this.addChild(enemy);
     }
@@ -126,48 +131,56 @@ export default class Game extends Scene {
     this.checkGameEnd();
   }
 
+  private onLifeLoose(){
+    this.stats.setLives(this.stats.getLives() - 1);
+    this.player.setHealth(100);
+    this.enemies.forEach((enemy) => this.removeChild(enemy));
+    this.enemies = [];
+    this.gameIsPaused = true;
+    this.gameText = new Text('You lose one of your lives.', {
+      fontFamily: 'Verdana',
+      fontSize: 50,
+      fill: 'white',
+    });
+    this.gameSubtext = new Text('Press fire key to continue', {
+      fontFamily: 'Verdana',
+      fontSize: 20,
+      fill: 'white',
+    });
+    this.gameText.resolution = 2;
+    centerObjects(this.gameText);
+    centerObjects(this.gameSubtext);
+    this.gameText.y = window.innerHeight / 2 - 50;
+    this.addChild(this.gameText);
+    this.addChild(this.gameSubtext);
+  }
+
+  private onGameOver(){
+    this.gameIsPaused = true;
+    this.gameText = new Text('Game Over', {
+      fontFamily: 'Verdana',
+      fontSize: 50,
+      fill: 'white',
+    });
+    this.gameSubtext = new Text('Press fire key to restart', {
+      fontFamily: 'Verdana',
+      fontSize: 20,
+      fill: 'white',
+    });
+    this.gameText.resolution = 2;
+    centerObjects(this.gameText);
+    centerObjects(this.gameSubtext);
+    this.gameText.y = window.innerHeight / 2 - 50;
+    this.addChild(this.gameText);
+    this.addChild(this.gameSubtext);
+  }
+
   // Check if the game has ended
   private checkGameEnd() {
     if (this.player.getHealth() <= 0 && this.stats.getLives() > 0) {
-      this.stats.setLives(this.stats.getLives() - 1);
-      this.player.setHealth(100);
-      this.enemies.forEach((enemy) => this.removeChild(enemy));
-      this.enemies = [];
-      this.gameIsPaused = true;
-      this.gameText = new Text('You lose one of your lives.', {
-        fontFamily: 'Verdana',
-        fontSize: 50,
-        fill: 'white',
-      });
-      this.gameSubtext = new Text('Press fire key to continue', {
-        fontFamily: 'Verdana',
-        fontSize: 20,
-        fill: 'white',
-      });
-      this.gameText.resolution = 2;
-      centerObjects(this.gameText);
-      centerObjects(this.gameSubtext);
-      this.gameText.y = window.innerHeight / 2 - 50;
-      this.addChild(this.gameText);
-      this.addChild(this.gameSubtext);
+      this.onLifeLoose()
     } else if (this.stats.getLives() <= 0) {
-      this.gameIsPaused = true;
-      this.gameText = new Text('Game Over', {
-        fontFamily: 'Verdana',
-        fontSize: 50,
-        fill: 'white',
-      });
-      this.gameSubtext = new Text('Press fire key to restart', {
-        fontFamily: 'Verdana',
-        fontSize: 20,
-        fill: 'white',
-      });
-      this.gameText.resolution = 2;
-      centerObjects(this.gameText);
-      centerObjects(this.gameSubtext);
-      this.gameText.y = window.innerHeight / 2 - 50;
-      this.addChild(this.gameText);
-      this.addChild(this.gameSubtext);
+      this.onGameOver()
     }
   }
 

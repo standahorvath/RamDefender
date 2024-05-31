@@ -18,6 +18,7 @@ export class Enemy extends Container {
   private maxHealth = 30;
   private isHited = false;
   private damage = 26;
+  private size = 32;
 
   /**
    * Creates an instance of Enemy.
@@ -27,7 +28,7 @@ export class Enemy extends Container {
    * @param {number} [score=30] - The score value of the enemy.
    * @param {number} [health=30] - The health value of the enemy.
    */
-  constructor(x: number, y: number, angle: number, score = 30, health = 30) {
+  constructor(x: number, y: number, angle: number, score = 30, health = 30, size = 32) {
     super();
     this.x = x;
     this.y = y;
@@ -35,6 +36,7 @@ export class Enemy extends Container {
     this.score = score;
     this.health = health;
     this.maxHealth = health;
+    this.size = size;
 
     // Load and set the background sprite
     Promise.resolve(Assets.load('/assets/images/enemy_bg.png')).then((texture: Texture) => {
@@ -47,8 +49,8 @@ export class Enemy extends Container {
       // Load and set the icon sprite
       Promise.resolve(Assets.load('/assets/images/enemy.png')).then((texture: Texture) => {
         this.icon = new Sprite(texture);
-        this.icon.width = 32;
-        this.icon.height = 32;
+        this.icon.width = this.size;
+        this.icon.height = this.size;
         this.addChild(this.icon);
         this.icon.position.set(0, 0);
         this.icon.anchor.set(0.5, 0.5);
@@ -114,9 +116,9 @@ export class Enemy extends Container {
     const healthPercent = 1 - (health / this.maxHealth);
 
     this.healthBar?.clear()
-      .circle(0, 0, 28)
+      .circle(0, 0, this.size - 4)
       .fill('white')
-      .arc(0, 0, 29, 0, Math.PI * 2 * healthPercent)
+      .arc(0, 0, this.size - 3, 0, Math.PI * 2 * healthPercent)
       .fill('red')
       .circle(0, 0, 1)
       .cut();

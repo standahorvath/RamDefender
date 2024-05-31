@@ -14,6 +14,7 @@ export class Lasergun extends Weapon {
   }
 
   public shoot(player: Player, game: Container) {
+    if(this.ammo <= 0) return; // Check if the player has enough ammo 
     this.ammo -= 3;
     // Configure the laser shot's appearance and position
     this.laserShot

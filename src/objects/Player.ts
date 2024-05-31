@@ -2,11 +2,8 @@ import { Container, Graphics, Assets, Texture, Sprite } from 'pixi.js';
 import Keyboard from '../Keyboard';
 import Mouse from '../Mouse';
 import { Weapon } from './Weapon';
-import { Pistol } from './Weapons/Pistol';
-import { Shootgun } from './Weapons/Shootgun';
-import { Machinegun } from './Weapons/Machinegun';
-import { Lasergun } from './Weapons/Lasergun';
 import { Enemy } from './Enemy';
+import { Pistol } from './Weapons/Pistol';
 
 export class Player extends Container {
 
@@ -44,7 +41,7 @@ export class Player extends Container {
       this.addChild(this.playerSprite);
 
       // Initialize weapon
-      this.weapon = new Lasergun();
+      this.weapon = new Pistol();
       this.addChild(this.weapon);
     });
 
@@ -74,22 +71,16 @@ export class Player extends Container {
       case 'RIGHT':
         this.state.moveX = 1;
         break;
-      case 'KeyE':
-        if (!this.weapon) return;
-        this.removeChild(this.weapon);
-        // Cycle through weapons
-        if (this.weapon?.getWeaponName() === 'Pistol') {
-          this.weapon = new Shootgun();
-        } else if (this.weapon?.getWeaponName() === 'Shootgun') {
-          this.weapon = new Machinegun();
-        } else if (this.weapon?.getWeaponName() === 'Machinegun') {
-          this.weapon = new Lasergun();
-        } else if (this.weapon?.getWeaponName() === 'Lasergun') {
-          this.weapon = new Pistol();
-        }
-        this.addChild(this.weapon);
-        break;
     }
+  }
+
+  public changeWeapon(weapon: Weapon | null){
+    if (this.weapon) {
+      this.removeChild(this.weapon);
+    }
+    this.weapon = weapon;
+    if (!this.weapon) return;
+    this.addChild(this.weapon);
   }
 
   // Handle key release actions
@@ -142,6 +133,13 @@ export class Player extends Container {
     this.move(delta);
     if (this.weapon) {
       this.weapon.update(delta);
+    }
+    if(this.state.health < 100){
+      this.state.health += (window.healingCoef * delta);
+      if(this.state.health > 100){
+        this.state.health = 100;
+      }
+      this.render(window.innerWidth);
     }
   }
 

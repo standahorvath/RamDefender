@@ -3,12 +3,13 @@ import { centerObjects } from '../utils/general';
 import Keyboard from '../Keyboard';
 import { Weapon } from './Weapon';
 import { Pistol } from './Weapons/Pistol';
+import { Player } from './Player';
 
 export class Inventory extends Container {
 
   private keyboard = Keyboard.getInstance();
   private slots: Sprite[] = [];
-  private weapons: Weapon[] = [];
+  private weapons: (Weapon | null)[] = [null, null, null, null];
   private weaponHealths: Graphics[] = [];
   private fullSlot: Sprite | null = null;
   private selected = 0;
@@ -17,9 +18,11 @@ export class Inventory extends Container {
   private machinegunUi: Sprite | null = null;
   private lasergunUi: Sprite | null = null;
   private shootgunUi: Sprite | null = null;
+  private player = null as Player | null;
 
-  constructor() {
+  constructor(player: Player) {
     super();
+    this.player = player;
 
     // Keyboard action event listeners
     this.keyboard.onAction(({ action, buttonState }) => {
@@ -62,30 +65,31 @@ export class Inventory extends Container {
     this.fullSlot.height = 64;
     this.addChild(this.fullSlot);
 
-    if(pistolUi && machinegunUi && lasergunUi && shootgunUi){
+    if (pistolUi && machinegunUi && lasergunUi && shootgunUi) {
       this.pistolUi = new Sprite(pistolUi);
       this.pistolUi.width = 48;
       this.pistolUi.height = 48;
       this.pistolUi.anchor.set(0.5, 0.5);
+      this.pistolUi.visible = false;
       this.machinegunUi = new Sprite(machinegunUi);
       this.machinegunUi.width = 48;
       this.machinegunUi.height = 48;
       this.machinegunUi.anchor.set(0.5, 0.5);
+      this.machinegunUi.visible = false;
       this.lasergunUi = new Sprite(lasergunUi);
       this.lasergunUi.width = 48;
       this.lasergunUi.height = 48;
       this.lasergunUi.anchor.set(0.5, 0.5);
+      this.lasergunUi.visible = false;
       this.shootgunUi = new Sprite(shootgunUi);
       this.shootgunUi.width = 48;
       this.shootgunUi.height = 48;
       this.shootgunUi.anchor.set(0.5, 0.5);
-      this.addChild(this.pistolUi);
-      this.addChild(this.machinegunUi);
-      this.addChild(this.lasergunUi);
-      this.addChild(this.shootgunUi);
+      this.shootgunUi.visible = false;
+      this.addChild(this.pistolUi, this.machinegunUi, this.lasergunUi, this.shootgunUi);
     }
 
-    this.weapons.push(new Pistol());
+    this.pickup(new Pistol())
     this.render(window.innerWidth);
   }
 
@@ -96,6 +100,15 @@ export class Inventory extends Container {
       this.selected = (this.selected - 1 + this.slots.length) % this.slots.length;
     }
     this.updateFullSlotPosition();
+    this.updatePlayerWeapon();
+  }
+
+  updatePlayerWeapon() {
+    if (this.weapons[this.selected]) {
+      this.player?.changeWeapon(this.weapons[this.selected]);
+    } else {
+      this.player?.changeWeapon(null);
+    }
   }
 
   resize(width: number) {
@@ -103,6 +116,15 @@ export class Inventory extends Container {
   }
 
   update(delta: number) {
+
+    const selectedWeapon = this.weapons[this.selected]
+    if (selectedWeapon && selectedWeapon.getAmmo() <= 0) {
+      this.weapons[this.selected] = null
+      this.selected--
+      this.updateFullSlotPosition()
+      this.updatePlayerWeapon()
+    }
+
     this.render(window.innerWidth);
   }
 
@@ -112,37 +134,64 @@ export class Inventory extends Container {
     const offset = 64; // Offset between slots
     const startX = width / 2 - (this.slots.length - 1) * offset / 2;
 
+    if (this.pistolUi) {
+      this.pistolUi.visible = false;
+    }
+    if (this.machinegunUi) {
+      this.machinegunUi.visible = false;
+    }
+    if (this.lasergunUi) {
+      this.lasergunUi.visible = false;
+    }
+    if (this.shootgunUi) {
+      this.shootgunUi.visible = false;
+    }
+
     this.slots.forEach((slot, index) => {
       centerObjects(slot);
       slot.x = startX + index * offset;
       slot.y = window.innerHeight - 40;
 
-      if (this.weapons[index]) {
-        const weapon = this.weapons[index];
-        switch(weapon.getWeaponName()){
+      const tempWeapon = this.weapons[index]
+      if (tempWeapon) {
+        switch (tempWeapon.getWeaponName()) {
           case 'Pistol':
             this.pistolUi?.position.set(slot.x, slot.y);
+            if (this.pistolUi) {
+              this.pistolUi.visible = true;
+            }
             break;
           case 'Machinegun':
             this.machinegunUi?.position.set(slot.x, slot.y);
+            if (this.machinegunUi) {
+              this.machinegunUi.visible = true;
+            }
             break;
           case 'Lasergun':
             this.lasergunUi?.position.set(slot.x, slot.y);
+            if (this.lasergunUi) {
+              this.lasergunUi.visible = true;
+            }
             break;
           case 'Shootgun':
             this.shootgunUi?.position.set(slot.x, slot.y);
+            if (this.shootgunUi) {
+              this.shootgunUi.visible = true;
+            }
             break;
         }
       }
     });
 
     this.weaponHealths.forEach((health, index) => {
-      if(this.weapons[index]){
+      health.visible = false;
+      if (this.weapons[index]) {
         const weapon = this.weapons[index];
         health.clear();
         health.rect(0, 0, 44 * weapon.getAmmo() / 100, 4)
           .fill(0x00FF00);
         health.position.set(this.slots[index].x - 32 + 10, this.slots[index].y + 16);
+        health.visible = true;
       }
     }
     );
@@ -171,17 +220,23 @@ export class Inventory extends Container {
     // Currently no action on release
   }
 
-  public pickup(weapon: Weapon){
-    if(this.weapons.length < 4 && !this.hasWeapon(weapon)){
-      this.weapons.push(weapon);
-      this.render(window.innerWidth);
-    } else {
-      // heal weapon
-      this.weapons.find(w => w.getWeaponName() === weapon.getWeaponName())?.heal();
+  public pickup(weapon: Weapon) {
+    if(this.hasWeapon(weapon)){
+      this.weapons.find(w => w && w.getWeaponName() === weapon.getWeaponName())?.heal();
+      this.render(window.innerWidth)
+      return
+    }
+
+    for (let i = 0; i < this.weapons.length; i++) {
+      if(!this.weapons[i]){
+        this.weapons[i] = weapon;
+        this.render(window.innerWidth);
+        return;
+      }
     }
   }
 
-  private hasWeapon(weapon: Weapon){
-    return this.weapons.some(w => w.getWeaponName() === weapon.getWeaponName());
+  private hasWeapon(weapon: Weapon) {
+    return this.weapons.some(w => w && w.getWeaponName() === weapon.getWeaponName());
   }
 }
