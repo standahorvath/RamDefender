@@ -8,6 +8,8 @@ export class Machinegun extends Weapon {
     this.weaponName = 'Machinegun';
   }
   public shoot(player: Player, game: Container) {
+    if(this.ammo <= 0) return; // Check if the player has enough ammo 
+    this.ammo -= 4;
     for(let i = 0; i < 10; i++){
       setTimeout(() => {
         this.machineGunShoot(player, game)
