@@ -34,7 +34,7 @@ export class Player extends Container {
       this.onMouseMove(x, y)
     });
 
-    Promise.resolve(Assets.load('/assets/images/player.png')).then((texture:Texture) => {
+    Promise.resolve(Assets.load('assets/images/player.png')).then((texture:Texture) => {
       this.playerSprite = new Sprite(texture)
       this.playerSprite.anchor.set(0.5, 0.5)
       this.addChild(this.playerSprite)

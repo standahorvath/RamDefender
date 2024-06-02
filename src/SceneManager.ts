@@ -1,6 +1,14 @@
 import { Application } from 'pixi.js';
 import Scene from './Scene';
 import AssetLoader from './AssetLoader';
+import 'pixi.js/advanced-blend-modes';
+import 'pixi.js/unsafe-eval';
+import 'pixi.js/prepare';
+import 'pixi.js/math-extras';
+import 'pixi.js/dds';
+import 'pixi.js/ktx';
+import 'pixi.js/ktx2';
+import 'pixi.js/basis';
 
 export interface SceneUtils {
   assetLoader: AssetLoader;
@@ -24,6 +32,7 @@ export default class SceneManager {
         backgroundColor: 0x01134e,
         resolution: window.devicePixelRatio,
         antialias: true,
+        preference: 'webgl',
       }
     )).then(() => {
     // @ts-expect-error Set PIXI app to global window object for the PIXI Inspector
@@ -93,11 +102,13 @@ export default class SceneManager {
   }
 
   private async initScene(sceneName: string) {
+    /*
     const sceneUtils = {
       assetLoader: new AssetLoader(),
     };
+    */
 
-    const scene = new this.sceneConstructors[sceneName](sceneUtils);
+    const scene = new this.sceneConstructors[sceneName]();
 
     this.sceneInstances.set(sceneName, scene);
 

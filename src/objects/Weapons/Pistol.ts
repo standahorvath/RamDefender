@@ -3,7 +3,7 @@ import { Shoot } from '../Shoot';
 import { Player } from '../Player';
 export class Pistol extends Weapon {
   constructor(damage = 10) {
-    super(damage, '/assets/images/cannon.png');
+    super(damage, 'assets/images/cannon.png');
     this.weaponName = 'Pistol';
 
   }

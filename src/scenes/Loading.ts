@@ -6,7 +6,7 @@ export default class Loading extends Scene {
   name = 'Loading';
 
   async load() {
-    await this.utils.assetLoader.loadAssetsGroup('assets');
+    //await this.utils.assetLoader.loadAssetsGroup('assets');
 
     const text = new Text('Loading...', {
       fontFamily: 'Verdana',

@@ -14,7 +14,7 @@ export class Stats extends Container {
   constructor() {
     super();
 
-    Promise.resolve(Assets.load('/assets/images/ram.png')).then((texture:Texture) => {
+    Promise.resolve(Assets.load('assets/images/ram.png')).then((texture:Texture) => {
       for(let i = 0; i < this.state.lives; i++){
         const sprite = new Sprite(texture)
         sprite.x = 15 + i * 45

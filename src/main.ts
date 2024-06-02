@@ -5,5 +5,4 @@ window.shootSpeed = 1
 window.enemySpeed = 0.1
 
 const sceneManager = new SceneManager();
-await sceneManager.switchScene('Loading');
 await sceneManager.switchScene('Game');

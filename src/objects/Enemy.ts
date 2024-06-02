@@ -18,13 +18,13 @@ export class Enemy extends Container {
     this.score = score
     this.health = health
     this.maxHealth = health
-    Promise.resolve(Assets.load('/assets/images/enemy_bg.png')).then((texture:Texture) => {
+    Promise.resolve(Assets.load('assets/images/enemy_bg.png')).then((texture:Texture) => {
       this.background = new Sprite(texture)
       this.addChild(this.background)
       this.background.position.set(0, 0)
       this.background.anchor.set(0.5, 0.5)
       this.background.rotation = angle
-      Promise.resolve(Assets.load('/assets/images/enemy.png')).then((texture:Texture) => {
+      Promise.resolve(Assets.load('assets/images/enemy.png')).then((texture:Texture) => {
         this.icon = new Sprite(texture)
         this.icon.width = 32
         this.icon.height = 32

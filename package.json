@@ -6,6 +6,7 @@
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build",
+    "build-only": "vite build",
     "preview": "vite preview",
     "lint": "eslint ./src --fix"
   },
@@ -39,6 +40,7 @@
   },
   "dependencies": {
     "@pixi/sound": "^5.2.0",
+    "@pixi/unsafe-eval": "^7.4.2",
     "eventemitter3": "^5.0.1",
     "gsap": "^3.11.4",
     "pixi-spine": "^4.0.4",

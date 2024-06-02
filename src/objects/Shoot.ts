@@ -10,7 +10,7 @@ export class Shoot extends Container {
     this.y = y + Math.sin(angle - Math.PI / 2) * 40
     this.angle = angle
     this.damage = damage
-    Promise.resolve(Assets.load('/assets/images/shoot.png')).then((texture:Texture) => {
+    Promise.resolve(Assets.load('assets/images/shoot.png')).then((texture:Texture) => {
       this.shootSprite = new Sprite(texture)
       this.addChild(this.shootSprite)
       this.shootSprite.position.set(0, 0)

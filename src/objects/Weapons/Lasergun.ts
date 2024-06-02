@@ -7,7 +7,7 @@ import Game from '../../scenes/Game';
 export class Lasergun extends Weapon {
   laserShot = new Graphics()
   constructor(damage = 100) {
-    super(damage, '/assets/images/lasergun.png');
+    super(damage, 'assets/images/lasergun.png');
     this.weaponName = 'Lasergun';
   }
   public shoot(player: Player, game: Container) {
